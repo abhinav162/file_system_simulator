@@ -122,10 +122,6 @@ void printBlocks(bool *allocated, int numBlocks)
 
 int main()
 {
-    int numFiles;
-    cout << "Enter the number of files to create: ";
-    cin >> numFiles;
-
     bool *allocated = new bool[NUM_BLOCKS];
     for (int i = 0; i < NUM_BLOCKS; i++)
     {
@@ -134,62 +130,116 @@ int main()
 
     vector<int> fileStarts;
     vector<string> fileNames;
-
-    for (int i = 1; i <= numFiles; i++)
-    {
-        string fileName;
-        cout << "Enter the name of file " << i << ": ";
-        cin >> fileName;
-        int fileSize;
-        cout << "Enter the size of file " << i << " in KB: ";
-        cin >> fileSize;
-        createFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName, fileSize);
-    }
-
-    cout << "Allocated space: ";
-    printBlocks(allocated, NUM_BLOCKS);
-
-    cout << "Starting locations of created files:" << endl;
-    for (int i = 0; i < fileStarts.size(); i++)
-    {
-        cout << "File " << i + 1 << ": block " << fileStarts[i] << endl;
-    }
-
-    // delete a file
     string fileName;
-    cout << "Enter the name of the file to delete: ";
-    cin >> fileName;
-    deleteFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName);
 
-    cout << "Allocated space: ";
-    printBlocks(allocated, NUM_BLOCKS);
+    do
+    {
+        cout << "Select an option: \n";
+        cout << "1. Create a file \n";
+        cout << "2. Create Multiple Files \n";
+        cout << "3. Delete a file \n";
+        cout << "4. Rename a file \n";
+        cout << "5. View Files \n";
+        cout << "6. Exit \n";
+        int option;
+        cin >> option;
+        switch (option)
+        {
+        case 1:
+        {
+            cout << "Enter the name of file: ";
+            cin >> fileName;
+            int fileSize;
+            cout << "Enter the size of file in KB: ";
+            cin >> fileSize;
+            createFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName, fileSize);
+            cout << "Allocated space: ";
+            printBlocks(allocated, NUM_BLOCKS);
 
-    // rename a file
-    cout<<"Do you want to rename a file? (y/n) ";
-    char choice;
-    cin>>choice;
-    if(choice=='y')
-    {
-        cout<<"Files available: \n";
-        for(int i=0;i<fileNames.size();i++)
-        {
-            cout<<fileNames[i]<<"\n";
+            cout << "Starting locations of created files:" << endl;
+            for (int i = 0; i < fileStarts.size(); i++)
+            {
+                cout << "File " << i + 1 << ": block " << fileStarts[i] << endl;
+            }
+            break;
         }
-        cout << "Enter the name of the file to rename: ";
-        cin >> fileName;
-        string newFileName;
-        cout << "Enter the new name of the file: ";
-        cin >> newFileName;
-        renameFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName, newFileName);
-        cout<<"Files after renaming: \n";
-        for(int i=0;i<fileNames.size();i++)
+        case 2:
         {
-            cout<<fileNames[i]<<"\n";
+            int numFiles;
+            cout << "Enter the number of files to create: ";
+            cin >> numFiles;
+            for (int i = 0; i < numFiles; i++)
+            {
+                cout << "Enter the name of file: ";
+                cin >> fileName;
+                int fileSize;
+                cout << "Enter the size of file in KB: ";
+                cin >> fileSize;
+                createFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName, fileSize);
+                cout << "Allocated space: ";
+                printBlocks(allocated, NUM_BLOCKS);
+
+                cout << "Starting locations of created files:" << endl;
+                for (int i = 0; i < fileStarts.size(); i++)
+                {
+                    cout << "File " << i + 1 << ": block " << fileStarts[i] << endl;
+                }
+            }
+            break;
         }
-    }
-    else
-    {
-        cout<<"Thank you!";
-    }
+        case 3:
+        {
+            cout << "Files available: \n";
+            for (int i = 0; i < fileNames.size(); i++)
+            {
+                cout << fileNames[i] << "\n";
+            }
+            cout << "Enter the name of the file to delete: ";
+            cin >> fileName;
+            deleteFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName);
+            cout << "Allocated space: ";
+            printBlocks(allocated, NUM_BLOCKS);
+            break;
+        }
+        case 4:
+        {
+            cout << "Files available: \n";
+            for (int i = 0; i < fileNames.size(); i++)
+            {
+                cout << fileNames[i] << "\n";
+            }
+            cout << "Enter the name of the file to rename: ";
+            cin >> fileName;
+            string newFileName;
+            cout << "Enter the new name of the file: ";
+            cin >> newFileName;
+            renameFile(allocated, NUM_BLOCKS, fileStarts, fileNames, fileName, newFileName);
+            cout << "Files after rename: \n";
+            for (int i = 0; i < fileNames.size(); i++)
+            {
+                cout << fileNames[i] << "\n";
+            }
+            break;
+        }
+        case 5:
+        {
+            cout << "Files available: \n";
+            for (int i = 0; i < fileNames.size(); i++)
+            {
+                cout << fileNames[i] << "\n";
+            }
+            break;
+        }
+        case 6:
+        {
+            cout << "Exiting..." << endl;
+            exit(0);
+        }
+        default:
+        {
+            cout << "Invalid option" << endl;
+        }
+        }
+    } while (true);
     return 0;
 }
