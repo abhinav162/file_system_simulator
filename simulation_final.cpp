@@ -131,10 +131,12 @@ void delete_file(Disk &disk, File &file)
 
 void rename_file(Disk &disk, File &file, string new_name)
 {
+    string old_name = file.name;
     file.name = new_name;
+
     for (int i = 0; i < disk.files.size(); i++)
     {
-        if (disk.files[i].name == file.name)
+        if (disk.files[i].name == old_name)
         {
             disk.files[i].name = new_name;
             break;
@@ -142,7 +144,7 @@ void rename_file(Disk &disk, File &file, string new_name)
     }
 }
 
-// calculate fragmentation percentage on the disk (linked allocation) 
+// calculate fragmentation percentage on the disk (linked allocation)
 double fragmentation_percentage(Disk &disk)
 {
     double fragmentation_percentage = 0;
@@ -158,16 +160,30 @@ double fragmentation_percentage(Disk &disk)
     return fragmentation_percentage;
 }
 
+// calculate no of wasted blocks on the disk
+int wasted_blocks(Disk &disk)
+{
+    int wasted_blocks = 0;
+    for (int i = 0; i < NUM_BLOCKS; i++)
+    {
+        if (disk.blocks[i] == 0)
+        {
+            wasted_blocks++;
+        }
+    }
+    return wasted_blocks;
+}
+
 void display_disk(Disk &disk)
 {
     cout << "Disk blocks: ";
     for (int i = 0; i < NUM_BLOCKS; i++)
     {
-        if((disk.blocks[i+1] == disk.blocks[i]+1) && (disk.blocks[i] != 0))
+        if ((disk.blocks[i + 1] == disk.blocks[i] + 1) && (disk.blocks[i] != 0))
         {
             cout << disk.blocks[i] << "->";
         }
-        else if(disk.blocks[i] == 1)
+        else if (disk.blocks[i] == 1)
         {
             cout << disk.blocks[i] << ":";
         }
@@ -202,45 +218,130 @@ int main()
         disk.blocks.push_back(0);
     }
 
-    File file1 = {"document1.txt", 2048, -1, -1};
-    File file2 = {"image1.jpg", 4096, -1, -1};
-
-    cout<<"How many files you wants to create: ";
     int n;
-    cin>>n;
-    File file[n];
-    for(int i=0;i<n;i++)
-    {
-        cout<<"Enter file name : ";
-        cin>>file[i].name;
-        cout<<"Enter file size : ";
-        cin>>file[i].size;
-        file[i].start_block=-1;
-        file[i].end_block=-1;
-        // allocate_contiguous(disk, file[i]);
-        allocate_linked(disk, file[i]);
-    }
-    display_disk(disk);
-    list_files(disk);
-    cout<< fragmentation_percentage(disk) << "%, Fragmentation" << endl;
+    vector<File> file;
 
-    // Which file you want to delete
+    // create one file
     int fileID;
-    cout<<"Which file you want to delete : ";
-    cin>>fileID;
-    delete_file(disk, file[fileID-1]);
+    int fileCount = 0;
+    string new_name;
 
-    // allocate_contiguous(disk, file1);
-    // allocate_linked(disk, file2);
+    int choice;
+    while (1)
+    {
+        cout << "1. Create file" << endl;
+        cout << "2. Create Multiple files" << endl;
+        cout << "3. Delete file" << endl;
+        cout << "4. Rename file" << endl;
+        cout << "5. Display disk" << endl;
+        cout << "6. List files" << endl;
+        cout << "7. Exit" << endl;
+        cout << endl;
 
-    display_disk(disk);
-    list_files(disk);
-    cout<< fragmentation_percentage(disk) << "%, Fragmentation" << endl;
+        cout << "Enter your choice : ";
+        cin >> choice;
 
-    // delete_file(disk, file1);
-    // delete_file(disk, file2);
-
-    // display_disk(disk);
-
+        switch (choice)
+        {
+        case 1:
+            file.push_back(File());
+            cout << "Enter file name : ";
+            cin >> file[fileCount].name;
+            cout << "Enter file size : ";
+            cin >> file[fileCount].size;
+            file[fileCount].start_block = -1;
+            file[fileCount].end_block = -1;
+            cout << "Choose allocation method: " << endl;
+            cout << "1. Contiguous" << endl;
+            cout << "2. Linked" << endl;
+            int allocation_method;
+            cin >> allocation_method;
+            if (allocation_method == 1)
+            {
+                allocate_contiguous(disk, file[fileCount]);
+            }
+            else if (allocation_method == 2)
+            {
+                allocate_linked(disk, file[fileCount]);
+            }
+            else
+            {
+                cout << "Invalid allocation method" << endl;
+            }
+            display_disk(disk);
+            list_files(disk);
+            cout << fragmentation_percentage(disk) << "%, Fragmentation" << endl;
+            cout << wasted_blocks(disk) << " Wasted Blocks\n" << endl;
+            fileCount++;
+            break;
+        case 2:
+            cout << "How many files you wants to create: ";
+            cin >> n;
+            for (int i = 0; i < n; i++)
+            {
+                file.push_back(File());
+                cout << "Enter file name : ";
+                cin >> file[fileCount].name;
+                cout << "Enter file size : ";
+                cin >> file[fileCount].size;
+                file[fileCount].start_block = -1;
+                file[fileCount].end_block = -1;
+                cout << "Choose allocation method: " << endl;
+                cout << "1. Contiguous" << endl;
+                cout << "2. Linked" << endl;
+                int allocation_method;
+                cin >> allocation_method;
+                if (allocation_method == 1)
+                {
+                    allocate_contiguous(disk, file[fileCount]);
+                }
+                else if (allocation_method == 2)
+                {
+                    allocate_linked(disk, file[fileCount]);
+                }
+                else
+                {
+                    cout << "Invalid allocation method" << endl;
+                }
+                fileCount++;
+            }
+            display_disk(disk);
+            list_files(disk);
+            cout << fragmentation_percentage(disk) << "%, Fragmentation" << endl;
+            cout << wasted_blocks(disk) << " Wasted Blocks" << endl;
+            break;
+        case 3:
+            cout << "Which file you want to delete? :" << endl;
+            list_files(disk);
+            cin >> fileID;
+            delete_file(disk, file[fileID - 1]);
+            cout << "files deleted successfully" << endl;
+            cout << "Files in the disk after deletion : " << endl;
+            list_files(disk);
+            break;
+        case 4:
+            list_files(disk);
+            cout << "Enter ID of the file to rename : " << endl;
+            cin >> fileID;
+            cout << "Enter new file name : ";
+            cin >> new_name;
+            rename_file(disk, file[fileID - 1], new_name);
+            cout << "Files in the disk after rename : " << endl;
+            list_files(disk);
+            break;
+        case 5:
+            display_disk(disk);
+            break;
+        case 6:
+            list_files(disk);
+            break;
+        case 7:
+            exit(0);
+            break;
+        default:
+            cout << "Invalid choice";
+            break;
+        }
+    }
     return 0;
 }
