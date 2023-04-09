@@ -197,14 +197,20 @@ void display_disk(Disk &disk)
 
 void list_files(Disk &disk)
 {
-    cout << "Files:" << endl;
+    if(disk.files.size() == 0)
+    {
+        cout << "No files in disk." << endl;
+        return;
+    }
+
+    cout << "Files in Disk:" << endl;
     for (int i = 0; i < disk.files.size(); i++)
     {
-        cout << "File ID: " << i + 1 << endl;
-        cout << "Name: " << disk.files[i].name << endl;
-        cout << "Size: " << disk.files[i].size << " bytes" << endl;
-        cout << "Start block: " << disk.files[i].start_block << endl;
-        cout << "End block: " << disk.files[i].end_block << endl;
+        cout << "+ File ID: " << i + 1 << endl;
+        cout << "  Name: " << disk.files[i].name << endl;
+        cout << "  Size: " << disk.files[i].size << " bytes" << endl;
+        cout << "  Start block: " << disk.files[i].start_block << endl;
+        cout << "  End block: " << disk.files[i].end_block << endl;
         cout << endl;
     }
 }
@@ -229,6 +235,7 @@ int main()
     int choice;
     while (1)
     {
+        cout << "<==Options============================>" << endl;
         cout << "1. Create file" << endl;
         cout << "2. Create Multiple files" << endl;
         cout << "3. Delete file" << endl;
@@ -236,9 +243,7 @@ int main()
         cout << "5. Display disk" << endl;
         cout << "6. List files" << endl;
         cout << "7. Exit" << endl;
-        cout << endl;
-
-        cout << "Enter your choice : ";
+        cout << "<======== Enter your choice : ========> \n: ";
         cin >> choice;
 
         switch (choice)
@@ -331,6 +336,8 @@ int main()
             break;
         case 5:
             display_disk(disk);
+            cout << fragmentation_percentage(disk) << "%, Fragmentation" << endl;
+            cout << wasted_blocks(disk) << " Wasted Blocks" << endl;
             break;
         case 6:
             list_files(disk);
