@@ -4,7 +4,6 @@ using namespace std;
 
 //The following code is a C++ program to simulate the Disk Operating System (DOS). It is used to manage and store data on a storage device, such as a hard drive. 
 
-//The following constants are used by the code:
 const int BLOCK_SIZE = 512;  //The size of each block in bytes
 const int NUM_BLOCKS = 1024; //The total number of blocks available in the disk
 
@@ -97,6 +96,9 @@ void allocate_linked(Disk &disk, File &file) {
     if (num_blocks == 0) {
         file.start_block = blocks[0];
         file.end_block = blocks[blocks.size() - 1];
+        for (int i = file.start_block; i <= file.end_block; i++) {
+            disk.blocks[i] = i;
+        }
         disk.files.push_back(file);
     } else {    //Otherwise display an error message
         cout << "Not enough linked blocks on the disk." << endl;
@@ -168,13 +170,17 @@ void display_disk(Disk &disk) // displays the disk blocks
     cout << "Disk blocks: ";
     for (int i = 0; i < NUM_BLOCKS; i++)
     {
-        if ((disk.blocks[i + 1] == disk.blocks[i] + 1) && (disk.blocks[i] != 0))
+        if ((disk.blocks[i + 1] == disk.blocks[i] + 1))
         {
-            cout << disk.blocks[i] << "->";
+            cout << disk.blocks[i] << "->"  ;
+        }
+        else if ((disk.blocks[i + 1] == 0 || disk.blocks[i + 1] == 1) && (disk.blocks[i] > 1))
+        {
+            cout << disk.blocks[i] ;
         }
         else if (disk.blocks[i] == 1)
         {
-            cout << disk.blocks[i] << ":";
+            cout  << ":1:";
         }
         else
         {
