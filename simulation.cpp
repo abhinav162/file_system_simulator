@@ -13,6 +13,7 @@ struct File {
     int size;              //The file's size in bytes
     int start_block;       //The starting block of the file
     int end_block;         //The ending block of the file
+    string type;           //The file's type
 };
 
 //A Disk is represented using a vector of integers, each integer representing a single block on the disk, with a value of 1 if the block is used and 0 if the block is free.
@@ -97,7 +98,7 @@ void allocate_linked(Disk &disk, File &file) {
         file.start_block = blocks[0];
         file.end_block = blocks[blocks.size() - 1];
         for (int i = file.start_block; i <= file.end_block; i++) {
-            disk.blocks[i] = i;
+            disk.blocks[i] = i + 1;
         }
         disk.files.push_back(file);
     } else {    //Otherwise display an error message
@@ -107,12 +108,16 @@ void allocate_linked(Disk &disk, File &file) {
 
 /* delete_file() function is used for deleting a file stored on the disk. 
 It takes two arguments - a reference to the Disk data structure, and a File structure representing the file to be deleted. */
-void delete_file(Disk &disk, File &file) {
-    //Mark every block occupied by the file as free
-    for (int i = file.start_block; i <= file.end_block; i++) {
-        disk.blocks[i] = 0;
+// take file id and check if file.type is Linked or Contiguous and then delete it accordingly and deallocate the blocks
+void delete_file(Disk& disk, File file) {
+    int start = file.start_block;
+    int end = file.end_block;
+    for (int i = start; i <= end; i++) {
+        disk.blocks[i] = 0; // deallocate the blocks
     }
-    //Remove the file from the vector of files in the disk
+    file.start_block = -1;
+    file.end_block = -1;
+    // remove the file from the files vector
     for (int i = 0; i < disk.files.size(); i++) {
         if (disk.files[i].name == file.name) {
             disk.files.erase(disk.files.begin() + i);
@@ -170,7 +175,11 @@ void display_disk(Disk &disk) // displays the disk blocks
     cout << "Disk blocks: ";
     for (int i = 0; i < NUM_BLOCKS; i++)
     {
-        if ((disk.blocks[i + 1] == disk.blocks[i] + 1))
+        if(disk.blocks[i] == 0)
+        {
+            cout << "._.";
+        }
+        else if ((disk.blocks[i + 1] == disk.blocks[i] + 1))
         {
             cout << disk.blocks[i] << "->"  ;
         }
@@ -258,10 +267,12 @@ int main()
             if (allocation_method == 1)  // allocate the file on the disk
             {
                 allocate_contiguous(disk, file[fileCount]); // allocate the file contiguous manner
+                file[fileCount].type = "Contiguous";
             }
             else if (allocation_method == 2)
             {
                 allocate_linked(disk, file[fileCount]); // allocate the file in Linked manner
+                file[fileCount].type = "Linked";
             }
             else
             {
@@ -293,10 +304,12 @@ int main()
                 if (allocation_method == 1)
                 {
                     allocate_contiguous(disk, file[fileCount]);
+                    file[fileCount].type = "Contiguous";
                 }
                 else if (allocation_method == 2)
                 {
                     allocate_linked(disk, file[fileCount]);
+                    file[fileCount].type = "Linked";
                 }
                 else
                 {
